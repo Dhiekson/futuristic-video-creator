@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
@@ -30,7 +29,7 @@ const Index = () => {
     };
   }, [pollInterval]);
   
-  // Iniciar polling para o status do vídeo
+  // Atualizar polling para o status do vídeo para usar a API real
   const startPolling = () => {
     // Limpar qualquer intervalo existente
     if (pollInterval) {
@@ -44,9 +43,8 @@ const Index = () => {
     // Iniciar um novo intervalo de polling
     const interval = setInterval(async () => {
       try {
-        // Em uma aplicação real, verificaríamos o status real da API
-        // Para fins de demonstração, usaremos a simulação
-        const status = await VideoService.simulateVideoGeneration();
+        // Chamar a API real para verificar o status
+        const status = await VideoService.checkVideoStatus();
         
         setProgress(status.progress);
         setEstimatedTime(status.estimatedTime);
@@ -147,8 +145,8 @@ const Index = () => {
     try {
       setIsGenerating(true);
       
-      // Para fins de demonstração, usaremos a simulação
-      const status = await VideoService.simulateVideoGeneration();
+      // Usar a API real para verificar o status
+      const status = await VideoService.checkVideoStatus();
       
       setProgress(status.progress);
       setEstimatedTime(status.estimatedTime);
