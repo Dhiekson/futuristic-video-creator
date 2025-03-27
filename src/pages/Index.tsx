@@ -21,7 +21,7 @@ const Index = () => {
   const [estimatedTime, setEstimatedTime] = useState(0);
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
 
-  // Stop polling when component unmounts or when video is ready
+  // Parar o polling quando o componente é desmontado ou quando o vídeo está pronto
   useEffect(() => {
     return () => {
       if (pollInterval) {
@@ -30,22 +30,22 @@ const Index = () => {
     };
   }, [pollInterval]);
   
-  // Start polling for video status
+  // Iniciar polling para o status do vídeo
   const startPolling = () => {
-    // Clear any existing interval
+    // Limpar qualquer intervalo existente
     if (pollInterval) {
       clearInterval(pollInterval);
     }
     
-    // Set initial state
+    // Definir estado inicial
     setVideoUrl(null);
     setProgress(0);
     
-    // Start a new polling interval
+    // Iniciar um novo intervalo de polling
     const interval = setInterval(async () => {
       try {
-        // In a real application, we would check the actual API status
-        // For demo purposes, we'll use the simulation
+        // Em uma aplicação real, verificaríamos o status real da API
+        // Para fins de demonstração, usaremos a simulação
         const status = await VideoService.simulateVideoGeneration();
         
         setProgress(status.progress);
@@ -56,17 +56,17 @@ const Index = () => {
           setIsGenerating(false);
           clearInterval(interval);
           toast({
-            title: "Video generated successfully",
-            description: "Your video is ready to view and download.",
+            title: "Vídeo gerado com sucesso",
+            description: "Seu vídeo está pronto para visualizar e baixar.",
           });
         }
       } catch (error) {
-        console.error("Error polling for video status:", error);
+        console.error("Erro ao verificar o status do vídeo:", error);
         clearInterval(interval);
         setIsGenerating(false);
         toast({
-          title: "Error checking video status",
-          description: "Failed to check video generation progress.",
+          title: "Erro ao verificar o status do vídeo",
+          description: "Falha ao verificar o progresso da geração do vídeo.",
           variant: "destructive",
         });
       }
@@ -84,7 +84,7 @@ const Index = () => {
     try {
       setIsGenerating(true);
       
-      // Start text-to-video generation
+      // Iniciar geração de vídeo a partir de texto
       const result = await VideoService.generateTextToVideo({
         prompt: data.prompt,
         size: data.size,
@@ -94,15 +94,15 @@ const Index = () => {
       
       setEstimatedTime(result.estimatedTime);
       
-      // Start polling for status updates
+      // Iniciar polling para atualizações de status
       startPolling();
       
     } catch (error) {
-      console.error("Error generating video from text:", error);
+      console.error("Erro ao gerar vídeo a partir de texto:", error);
       setIsGenerating(false);
       toast({
-        title: "Error",
-        description: "Failed to generate video. Please try again.",
+        title: "Erro",
+        description: "Falha ao gerar vídeo. Por favor, tente novamente.",
         variant: "destructive",
       });
     }
@@ -110,32 +110,32 @@ const Index = () => {
   
   const handleImageToVideoGenerate = async (data: {
     prompt: string;
-    image: File | null;
+    images: File[];
     watermark: boolean;
     seed: number;
   }) => {
     try {
       setIsGenerating(true);
       
-      // Start image-to-video generation
+      // Iniciar geração de vídeo a partir de imagem
       const result = await VideoService.generateImageToVideo({
         prompt: data.prompt,
-        image: data.image,
+        images: data.images,
         watermark: data.watermark,
         seed: data.seed,
       });
       
       setEstimatedTime(result.estimatedTime);
       
-      // Start polling for status updates
+      // Iniciar polling para atualizações de status
       startPolling();
       
     } catch (error) {
-      console.error("Error generating video from image:", error);
+      console.error("Erro ao gerar vídeo a partir de imagem:", error);
       setIsGenerating(false);
       toast({
-        title: "Error",
-        description: "Failed to generate video. Please try again.",
+        title: "Erro",
+        description: "Falha ao gerar vídeo. Por favor, tente novamente.",
         variant: "destructive",
       });
     }
@@ -147,7 +147,7 @@ const Index = () => {
     try {
       setIsGenerating(true);
       
-      // For demo purposes, we'll use the simulation
+      // Para fins de demonstração, usaremos a simulação
       const status = await VideoService.simulateVideoGeneration();
       
       setProgress(status.progress);
@@ -157,22 +157,22 @@ const Index = () => {
         setVideoUrl(status.videoUrl);
         setIsGenerating(false);
         toast({
-          title: "Video retrieved",
-          description: "Your video is ready to view and download.",
+          title: "Vídeo recuperado",
+          description: "Seu vídeo está pronto para visualizar e baixar.",
         });
       } else {
         setIsGenerating(false);
         toast({
-          title: "Video still processing",
-          description: `Progress: ${status.progress}%`,
+          title: "Vídeo ainda em processamento",
+          description: `Progresso: ${status.progress}%`,
         });
       }
     } catch (error) {
-      console.error("Error refreshing video status:", error);
+      console.error("Erro ao atualizar o status do vídeo:", error);
       setIsGenerating(false);
       toast({
-        title: "Error refreshing status",
-        description: "Failed to get the latest status.",
+        title: "Erro ao atualizar o status",
+        description: "Falha ao obter o status mais recente.",
         variant: "destructive",
       });
     }
@@ -181,19 +181,19 @@ const Index = () => {
   const tabs = [
     {
       id: 'text-to-video',
-      label: 'Text to Video',
+      label: 'Texto para Vídeo',
       icon: <Video className="h-4 w-4" />,
     },
     {
       id: 'image-to-video',
-      label: 'Image to Video',
+      label: 'Imagem para Vídeo',
       icon: <Image className="h-4 w-4" />,
     },
   ];
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Progress bar for scroll position (pure decoration) */}
+      {/* Barra de progresso para posição de rolagem (decorativa) */}
       <motion.div
         className="progress-bar"
         style={{ scaleX: 0 }}
@@ -217,7 +217,7 @@ const Index = () => {
                 viewport={{ once: true }}
               >
                 <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium uppercase tracking-wider text-secondary-foreground">
-                  Create with AI
+                  Crie com IA
                 </span>
               </motion.div>
               
@@ -228,7 +228,7 @@ const Index = () => {
                 viewport={{ once: true }}
                 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl"
               >
-                Transform Your Ideas into Videos
+                Transforme Suas Ideias em Vídeos
               </motion.h2>
               
               <motion.p
@@ -238,7 +238,7 @@ const Index = () => {
                 viewport={{ once: true }}
                 className="mt-4 text-muted-foreground md:text-lg"
               >
-                Effortlessly create high-quality videos from text or images with our advanced AI
+                Crie vídeos de alta qualidade a partir de texto ou imagens facilmente com nossa IA avançada
               </motion.p>
             </div>
             
@@ -280,7 +280,7 @@ const Index = () => {
                 viewport={{ once: true }}
               >
                 <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium uppercase tracking-wider text-secondary-foreground">
-                  Showcase
+                  Galeria
                 </span>
               </motion.div>
               
@@ -291,7 +291,7 @@ const Index = () => {
                 viewport={{ once: true }}
                 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl"
               >
-                See What's Possible
+                Veja o Que é Possível
               </motion.h2>
               
               <motion.p
@@ -301,7 +301,7 @@ const Index = () => {
                 viewport={{ once: true }}
                 className="mt-4 text-muted-foreground md:text-lg"
               >
-                Explore examples created with our AI video generation technology
+                Explore exemplos criados com nossa tecnologia de geração de vídeo por IA
               </motion.p>
             </div>
             
@@ -326,11 +326,11 @@ const Index = () => {
                     </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="font-medium">Example {i}</h3>
+                    <h3 className="font-medium">Exemplo {i}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {i === 1 ? "Cityscape at sunset with flying cars" : 
-                       i === 2 ? "Ocean waves crashing on a futuristic beach" : 
-                       "Mountain landscape with holographic trees"}
+                      {i === 1 ? "Paisagem urbana ao pôr do sol com carros voadores" : 
+                       i === 2 ? "Ondas do oceano quebrando em uma praia futurista" : 
+                       "Paisagem montanhosa com árvores holográficas"}
                     </p>
                   </div>
                 </motion.div>
@@ -349,20 +349,20 @@ const Index = () => {
                 viewport={{ once: true }}
               >
                 <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium uppercase tracking-wider text-secondary-foreground">
-                  About our Technology
+                  Sobre Nossa Tecnologia
                 </span>
                 <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-                  Powered by Advanced AI
+                  Alimentado por IA Avançada
                 </h2>
                 <p className="mt-4 text-muted-foreground md:text-lg">
-                  Our video generation technology uses state-of-the-art AI models to transform text descriptions and images into lifelike videos with remarkable detail and motion.
+                  Nossa tecnologia de geração de vídeo usa modelos de IA de última geração para transformar descrições de texto e imagens em vídeos realistas com detalhes e movimento notáveis.
                 </p>
                 <ul className="mt-6 space-y-3">
                   {[
-                    "Text-to-video generation with natural motion",
-                    "Image-to-video animation with precise control",
-                    "Multiple resolution options for different needs",
-                    "Customizable settings for creative flexibility"
+                    "Geração de texto para vídeo com movimento natural",
+                    "Animação de imagem para vídeo com controle preciso",
+                    "Múltiplas opções de resolução para diferentes necessidades",
+                    "Configurações personalizáveis para flexibilidade criativa"
                   ].map((feature, i) => (
                     <motion.li
                       key={i}
@@ -395,7 +395,7 @@ const Index = () => {
                 </div>
                 <div className="pt-4 rounded-lg bg-muted/30 border border-border overflow-hidden">
                   <div className="px-4 py-2 font-mono text-sm">
-                    <div className="text-muted-foreground mb-1"># Generate a video from text</div>
+                    <div className="text-muted-foreground mb-1"># Gerar um vídeo a partir de texto</div>
                     <div className="text-green-600 mb-2">
                       client = Client(<span className="text-blue-600">"Wan-AI/Wan2.1"</span>)
                     </div>
@@ -403,7 +403,7 @@ const Index = () => {
                       result = client.predict(
                     </div>
                     <div className="pl-8 text-foreground">
-                      prompt=<span className="text-blue-600">"A futuristic cityscape at sunset"</span>,
+                      prompt=<span className="text-blue-600">"Uma paisagem urbana futurista ao pôr do sol"</span>,
                     </div>
                     <div className="pl-8 text-foreground">
                       size=<span className="text-blue-600">"1280*720"</span>,

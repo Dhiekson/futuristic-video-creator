@@ -23,10 +23,10 @@ const VideoPreview = ({
   onRefresh,
 }: VideoPreviewProps) => {
   const formatTime = (seconds: number) => {
-    if (seconds < 60) return `${Math.round(seconds)} seconds`;
+    if (seconds < 60) return `${Math.round(seconds)} segundos`;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.round(seconds % 60);
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds} minutes`;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds} minutos`;
   };
 
   return (
@@ -38,7 +38,7 @@ const VideoPreview = ({
       <Card className="glass-card overflow-hidden p-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Generated Video</h3>
+            <h3 className="text-lg font-medium">Vídeo Gerado</h3>
             <Button
               size="sm"
               variant="ghost"
@@ -46,7 +46,7 @@ const VideoPreview = ({
               disabled={isLoading && progress === 0}
             >
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              Atualizar
             </Button>
           </div>
 
@@ -57,7 +57,7 @@ const VideoPreview = ({
                 controls 
                 className="w-full h-full object-contain"
               >
-                Your browser does not support the video tag.
+                Seu navegador não suporta a tag de vídeo.
               </video>
             ) : isLoading ? (
               <div className="text-center space-y-4">
@@ -65,7 +65,7 @@ const VideoPreview = ({
                 <div className="space-y-2">
                   <Progress value={progress} className="h-1.5 w-64" />
                   <p className="text-sm text-muted-foreground">
-                    Estimated time: {formatTime(estimatedTime)}
+                    Tempo estimado: {formatTime(estimatedTime)}
                   </p>
                 </div>
               </div>
@@ -73,7 +73,7 @@ const VideoPreview = ({
               <div className="text-center p-6">
                 <Play className="h-12 w-12 text-muted-foreground/60 mx-auto mb-3" />
                 <p className="text-muted-foreground">
-                  No video generated yet. Fill out the form and click Generate.
+                  Nenhum vídeo gerado ainda. Preencha o formulário e clique em Gerar.
                 </p>
               </div>
             )}
@@ -83,13 +83,13 @@ const VideoPreview = ({
             <div className="flex justify-end">
               <a 
                 href={videoUrl} 
-                download="generated-video.mp4"
+                download="video-gerado.mp4"
                 target="_blank"
                 rel="noreferrer"
               >
                 <Button size="sm">
                   <Download className="h-4 w-4 mr-2" />
-                  Download
+                  Baixar
                 </Button>
               </a>
             </div>

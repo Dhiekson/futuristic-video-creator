@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { motion } from 'framer-motion';
-import { Play, RefreshCw, ImagePlus } from 'lucide-react';
+import { Play, RefreshCw, ImagePlus, X, Plus } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 
 interface ImageToVideoFormProps {
   onGenerateVideo: (data: {
     prompt: string;
-    image: File | null;
+    images: File[];
     watermark: boolean;
     seed: number;
   }) => Promise<void>;
@@ -23,33 +23,51 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [watermark, setWatermark] = useState(true);
   const [seed, setSeed] = useState(-1);
   const [useSeed, setUseSeed] = useState(false);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImage(file);
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      const updatedImages = [...images, ...newFiles];
+      setImages(updatedImages);
       
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      // Criar preview URLs para as novas imagens
+      const newPreviews: string[] = [];
+      newFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImagePreviews(prev => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(prev => {
+      const newImages = [...prev];
+      newImages.splice(index, 1);
+      return newImages;
+    });
+    
+    setImagePreviews(prev => {
+      const newPreviews = [...prev];
+      newPreviews.splice(index, 1);
+      return newPreviews;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!image) {
+    if (images.length === 0) {
       toast({
-        title: "Image is required",
-        description: "Please upload an image to generate a video",
+        title: "Imagem é obrigatória",
+        description: "Por favor, faça upload de pelo menos uma imagem para gerar um vídeo",
         variant: "destructive",
       });
       return;
@@ -60,20 +78,20 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
     try {
       await onGenerateVideo({
         prompt: prompt,
-        image: image,
+        images: images,
         watermark: watermark,
         seed: useSeed ? seed : -1,
       });
       
       toast({
-        title: "Video generation started",
-        description: "Your video is being generated. Please wait.",
+        title: "Geração de vídeo iniciada",
+        description: "Seu vídeo está sendo gerado. Por favor, aguarde.",
       });
     } catch (error) {
-      console.error("Error generating video:", error);
+      console.error("Erro ao gerar vídeo:", error);
       toast({
-        title: "Error",
-        description: "Failed to start video generation. Please try again.",
+        title: "Erro",
+        description: "Falha ao iniciar a geração do vídeo. Por favor, tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -97,12 +115,12 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="imagePrompt" className="text-sm font-medium">
-                  Prompt (Optional)
+                  Prompt (Opcional)
                 </Label>
                 <div className="relative">
                   <Input
                     id="imagePrompt"
-                    placeholder="Add details to guide video generation..."
+                    placeholder="Adicione detalhes para guiar a geração do vídeo..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     className="pr-14 h-12 bg-background/50"
@@ -115,55 +133,61 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
               </div>
               
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Upload Image</Label>
-                <div className="flex items-center justify-center w-full">
-                  <label
-                    htmlFor="imageUpload"
-                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer 
-                    ${isGenerating ? 'bg-muted border-muted-foreground/30' : 'bg-background/50 border-muted-foreground/50 hover:bg-accent/30 hover:border-muted-foreground'}`}
-                  >
-                    {imagePreview ? (
-                      <div className="relative w-full h-full">
-                        <img
-                          src={imagePreview}
-                          alt="Preview"
-                          className="w-full h-full object-contain rounded-lg"
-                        />
-                        {!isGenerating && (
-                          <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity rounded-lg">
-                            <p className="text-white text-sm font-medium">
-                              Click to change image
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <ImagePlus className="w-10 h-10 mb-3 text-muted-foreground" />
-                        <p className="mb-2 text-sm text-muted-foreground">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
+                <Label className="text-sm font-medium">Imagens (até 5)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-muted-foreground/30">
+                      <img
+                        src={preview}
+                        alt={`Imagem ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      {!isGenerating && (
+                        <button
+                          type="button"
+                          className="absolute top-2 right-2 rounded-full bg-background/80 p-1 hover:bg-background"
+                          onClick={() => removeImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {images.length < 5 && (
+                    <label
+                      htmlFor="imageUpload"
+                      className={`aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-lg cursor-pointer 
+                      ${isGenerating ? 'bg-muted border-muted-foreground/30' : 'bg-background/50 border-muted-foreground/50 hover:bg-accent/30 hover:border-muted-foreground'}`}
+                    >
+                      <div className="flex flex-col items-center justify-center p-4">
+                        <Plus className="w-8 h-8 mb-2 text-muted-foreground" />
+                        <p className="text-xs text-center text-muted-foreground">
+                          Adicionar imagem
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          PNG, JPG or JPEG (max 5MB)
-                        </p>
                       </div>
-                    )}
-                    <input
-                      id="imageUpload"
-                      type="file"
-                      className="hidden"
-                      accept="image/png, image/jpeg, image/jpg"
-                      onChange={handleImageChange}
-                      disabled={isGenerating}
-                    />
-                  </label>
+                      <input
+                        id="imageUpload"
+                        type="file"
+                        className="hidden"
+                        accept="image/png, image/jpeg, image/jpg"
+                        onChange={handleImagesChange}
+                        disabled={isGenerating || images.length >= 5}
+                        multiple
+                      />
+                    </label>
+                  )}
                 </div>
+                
+                <p className="text-xs text-muted-foreground mt-1">
+                  {images.length}/5 imagens • PNG, JPG (máx 5MB cada)
+                </p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Settings</Label>
+                <Label className="text-sm font-medium">Configurações</Label>
               </div>
               
               <div className="flex items-center space-x-2 py-1">
@@ -179,7 +203,7 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
                   htmlFor="watermark"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  Apply watermark
+                  Aplicar marca d'água
                 </Label>
               </div>
               
@@ -196,7 +220,7 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
                   htmlFor="useSeed"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  Use specific seed
+                  Usar seed específica
                 </Label>
               </div>
               
@@ -225,17 +249,17 @@ const ImageToVideoForm = ({ onGenerateVideo }: ImageToVideoFormProps) => {
               <Button
                 type="submit"
                 className="w-full h-12 text-base font-medium mt-auto"
-                disabled={isGenerating || !image}
+                disabled={isGenerating || images.length === 0}
               >
                 {isGenerating ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
-                    Generating...
+                    Gerando...
                   </>
                 ) : (
                   <>
                     <Play className="mr-2 h-4 w-4" />
-                    Generate Video
+                    Gerar Vídeo
                   </>
                 )}
               </Button>

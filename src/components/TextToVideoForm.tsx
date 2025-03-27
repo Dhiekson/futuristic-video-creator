@@ -42,8 +42,8 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
     
     if (!prompt.trim()) {
       toast({
-        title: "Prompt is required",
-        description: "Please enter a prompt to generate a video",
+        title: "O prompt é obrigatório",
+        description: "Por favor, insira um prompt para gerar um vídeo",
         variant: "destructive",
       });
       return;
@@ -60,14 +60,14 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
       });
       
       toast({
-        title: "Video generation started",
-        description: "Your video is being generated. Please wait.",
+        title: "Geração de vídeo iniciada",
+        description: "Seu vídeo está sendo gerado. Por favor, aguarde.",
       });
     } catch (error) {
-      console.error("Error generating video:", error);
+      console.error("Erro ao gerar vídeo:", error);
       toast({
-        title: "Error",
-        description: "Failed to start video generation. Please try again.",
+        title: "Erro",
+        description: "Falha ao iniciar a geração do vídeo. Por favor, tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -94,7 +94,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
             <div className="relative">
               <Input
                 id="prompt"
-                placeholder="Describe the video you want to create..."
+                placeholder="Descreva o vídeo que deseja criar..."
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 className="pr-14 h-12 bg-background/50"
@@ -108,7 +108,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Resolution</Label>
+              <Label className="text-sm font-medium">Resolução</Label>
               <div className="grid grid-cols-2 gap-2">
                 {resolutions.map((res) => (
                   <Button
@@ -131,7 +131,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Advanced Settings</Label>
+                <Label className="text-sm font-medium">Configurações Avançadas</Label>
               </div>
               
               <div className="flex items-center space-x-2 py-1">
@@ -147,7 +147,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
                   htmlFor="watermark"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  Apply watermark
+                  Aplicar marca d'água
                 </Label>
               </div>
               
@@ -164,7 +164,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
                   htmlFor="useSeed"
                   className="text-sm font-medium cursor-pointer"
                 >
-                  Use specific seed
+                  Usar seed específica
                 </Label>
               </div>
               
@@ -200,12 +200,12 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
             {isGenerating ? (
               <>
                 <LoadingSpinner size="sm" className="mr-2" />
-                Generating...
+                Gerando...
               </>
             ) : (
               <>
                 <Play className="mr-2 h-4 w-4" />
-                Generate Video
+                Gerar Vídeo
               </>
             )}
           </Button>
