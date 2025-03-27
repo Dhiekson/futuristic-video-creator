@@ -1,23 +1,14 @@
 
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Slider } from "@/components/ui/slider";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { motion } from 'framer-motion';
-import { Play, RefreshCw, CheckSquare, DownloadCloud } from 'lucide-react';
+import { Play } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
-
-const resolutions = [
-  { value: '1280*720', label: '1280×720 (16:9)' },
-  { value: '960*960', label: '960×960 (1:1)' },
-  { value: '720*1280', label: '720×1280 (9:16)' },
-  { value: '1088*832', label: '1088×832 (4:3)' },
-  { value: '832*1088', label: '832×1088 (3:4)' },
-];
+import PromptInput from './forms/PromptInput';
+import ResolutionSelector, { resolutions } from './forms/ResolutionSelector';
+import AdvancedSettings from './forms/AdvancedSettings';
 
 interface TextToVideoFormProps {
   onGenerateVideo: (data: {
@@ -75,126 +66,42 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
     }
   };
 
-  const handleRandomSeed = () => {
-    setSeed(Math.floor(Math.random() * 999999999));
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="h-full"
     >
-      <Card className="glass-card overflow-hidden p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="prompt" className="text-sm font-medium">
-              Prompt
-            </Label>
-            <div className="relative">
-              <Input
-                id="prompt"
-                placeholder="Descreva o vídeo que deseja criar..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="pr-14 h-12 bg-background/50"
-                disabled={isGenerating}
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                {prompt.length}/500
-              </span>
-            </div>
-          </div>
+      <Card className="glass-card h-full overflow-hidden p-6 border-2 border-primary/10 shadow-lg">
+        <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
+          <PromptInput 
+            prompt={prompt}
+            setPrompt={setPrompt}
+            disabled={isGenerating}
+          />
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Resolução</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {resolutions.map((res) => (
-                  <Button
-                    key={res.value}
-                    type="button"
-                    variant={selectedResolution === res.value ? "default" : "outline"}
-                    className={`h-10 justify-center ${
-                      selectedResolution === res.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background/50 hover:bg-secondary/80"
-                    }`}
-                    onClick={() => setSelectedResolution(res.value)}
-                    disabled={isGenerating}
-                  >
-                    {res.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
+          <div className="grid gap-6 md:grid-cols-2 flex-grow">
+            <ResolutionSelector
+              selectedResolution={selectedResolution}
+              setSelectedResolution={setSelectedResolution}
+              disabled={isGenerating}
+            />
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Configurações Avançadas</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2 py-1">
-                <Checkbox
-                  id="watermark"
-                  checked={watermark}
-                  onCheckedChange={(checked) => 
-                    setWatermark(checked as boolean)
-                  }
-                  disabled={isGenerating}
-                />
-                <Label
-                  htmlFor="watermark"
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Aplicar marca d'água
-                </Label>
-              </div>
-              
-              <div className="flex items-center space-x-2 py-1">
-                <Checkbox
-                  id="useSeed"
-                  checked={useSeed}
-                  onCheckedChange={(checked) => 
-                    setUseSeed(checked as boolean)
-                  }
-                  disabled={isGenerating}
-                />
-                <Label
-                  htmlFor="useSeed"
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  Usar seed específica
-                </Label>
-              </div>
-              
-              {useSeed && (
-                <div className="flex gap-2">
-                  <Input
-                    type="number"
-                    value={seed}
-                    onChange={(e) => setSeed(parseInt(e.target.value) || 0)}
-                    className="h-10 bg-background/50"
-                    disabled={isGenerating || !useSeed}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={handleRandomSeed}
-                    disabled={isGenerating || !useSeed}
-                    className="h-10 w-10 shrink-0"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+            <AdvancedSettings
+              watermark={watermark}
+              setWatermark={setWatermark}
+              useSeed={useSeed}
+              setUseSeed={setUseSeed}
+              seed={seed}
+              setSeed={setSeed}
+              disabled={isGenerating}
+            />
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-medium"
+            className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-blue-500 hover:shadow-md transition-shadow"
             disabled={isGenerating || !prompt.trim()}
           >
             {isGenerating ? (

@@ -28,7 +28,7 @@ interface WanAIResponse {
 
 class VideoService {
   private static API_URL = "https://api-inference.huggingface.co/models/Wan-AI/Wan2.1";
-  private static API_KEY = "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"; // Chave API adicionada
+  private static API_KEY = "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";
   private static pollInterval = 2000; // 2 segundos
   
   // Armazena o ID da tarefa atual
@@ -77,6 +77,7 @@ class VideoService {
       
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Erro na API:", errorData);
         throw new Error(errorData.detail || "Erro na chamada da API");
       }
       
@@ -85,6 +86,10 @@ class VideoService {
       
       // Armazenar o ID da tarefa para consultar o status posteriormente
       this.currentTaskId = data.task_id || null;
+      
+      if (!this.currentTaskId) {
+        throw new Error("ID da tarefa não encontrado na resposta da API");
+      }
       
       return {
         videoUrl: null,
@@ -122,6 +127,7 @@ class VideoService {
       
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Erro na API:", errorData);
         throw new Error(errorData.detail || "Erro na chamada da API");
       }
       
@@ -130,6 +136,10 @@ class VideoService {
       
       // Armazenar o ID da tarefa para consultar o status posteriormente
       this.currentTaskId = data.task_id || null;
+      
+      if (!this.currentTaskId) {
+        throw new Error("ID da tarefa não encontrado na resposta da API");
+      }
       
       return {
         videoUrl: null,
@@ -144,6 +154,7 @@ class VideoService {
   static async checkVideoStatus(): Promise<{ videoUrl: string | null; progress: number; estimatedTime: number }> {
     try {
       if (!this.currentTaskId) {
+        console.error("Nenhuma tarefa em andamento para verificar status");
         return {
           videoUrl: null,
           progress: 0,
@@ -165,6 +176,7 @@ class VideoService {
       
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Erro ao verificar status:", errorData);
         throw new Error(errorData.detail || "Erro ao verificar o status do vídeo");
       }
       
@@ -173,6 +185,7 @@ class VideoService {
       
       // Se o status for "complete", retornar a URL do vídeo
       if (data.status === "complete" && data.output?.video) {
+        console.log("Vídeo gerado com sucesso:", data.output.video);
         // Limpar o ID da tarefa atual
         this.currentTaskId = null;
         
