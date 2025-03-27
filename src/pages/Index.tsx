@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles, Video, Image } from 'lucide-react';
+import { Sparkles, Video, Image, Play } from 'lucide-react';
 import AnimatedTabs from '@/components/AnimatedTabs';
 import TextToVideoForm from '@/components/TextToVideoForm';
 import ImageToVideoForm from '@/components/ImageToVideoForm';
