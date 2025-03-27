@@ -23,11 +23,12 @@ interface WanAIResponse {
     video?: string;
   };
   detail?: string;
+  task_id?: string;
 }
 
 class VideoService {
   private static API_URL = "https://api-inference.huggingface.co/models/Wan-AI/Wan2.1";
-  private static API_KEY = ""; // Seria ideal armazenar em variáveis de ambiente
+  private static API_KEY = "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"; // Chave API adicionada
   private static pollInterval = 2000; // 2 segundos
   
   // Armazena o ID da tarefa atual
@@ -79,7 +80,7 @@ class VideoService {
         throw new Error(errorData.detail || "Erro na chamada da API");
       }
       
-      const data = await response.json();
+      const data: WanAIResponse = await response.json();
       console.log("Resposta da API:", data);
       
       // Armazenar o ID da tarefa para consultar o status posteriormente
@@ -87,7 +88,7 @@ class VideoService {
       
       return {
         videoUrl: null,
-        estimatedTime: data[1] || 60, // API retorna o tempo estimado como segundo elemento
+        estimatedTime: data.eta || 60, // Usando o eta da resposta
       };
     } catch (error) {
       console.error("Erro na geração de vídeo a partir de texto:", error);
@@ -124,7 +125,7 @@ class VideoService {
         throw new Error(errorData.detail || "Erro na chamada da API");
       }
       
-      const data = await response.json();
+      const data: WanAIResponse = await response.json();
       console.log("Resposta da API:", data);
       
       // Armazenar o ID da tarefa para consultar o status posteriormente
@@ -132,7 +133,7 @@ class VideoService {
       
       return {
         videoUrl: null,
-        estimatedTime: data[1] || 90, // API retorna o tempo estimado como segundo elemento
+        estimatedTime: data.eta || 90, // Usando o eta da resposta
       };
     } catch (error) {
       console.error("Erro na geração de vídeo a partir de imagens:", error);
