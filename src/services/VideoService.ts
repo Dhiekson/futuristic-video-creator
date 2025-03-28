@@ -22,8 +22,9 @@ interface VideoStatus {
 }
 
 class VideoService {
+  // Updated API key with proper permissions
   private static API_URL = "https://api-inference.huggingface.co/models/Wan-AI/Wan2.1";
-  private static API_KEY = "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";
+  private static API_KEY = "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"; // Using a different API key with proper permissions
   private static currentTaskId: string | null = null;
   
   static async generateTextToVideo(params: TextToVideoParams): Promise<VideoStatus> {
@@ -49,7 +50,15 @@ class VideoService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("API Error:", response.status, errorData);
-        throw new Error(`API returned ${response.status}: ${errorData.error || response.statusText}`);
+        
+        // More descriptive error messages based on status codes
+        if (response.status === 403) {
+          throw new Error(`Erro de autenticação (${response.status}): Verifique se o API key possui permissões suficientes. ${errorData.error || ''}`);
+        } else if (response.status === 429) {
+          throw new Error(`Limite de requisições excedido (${response.status}): Aguarde um momento e tente novamente.`);
+        } else {
+          throw new Error(`Erro na API (${response.status}): ${errorData.error || response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -103,7 +112,15 @@ class VideoService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("API Error:", response.status, errorData);
-        throw new Error(`API returned ${response.status}: ${errorData.error || response.statusText}`);
+        
+        // More descriptive error messages based on status codes
+        if (response.status === 403) {
+          throw new Error(`Erro de autenticação (${response.status}): Verifique se o API key possui permissões suficientes. ${errorData.error || ''}`);
+        } else if (response.status === 429) {
+          throw new Error(`Limite de requisições excedido (${response.status}): Aguarde um momento e tente novamente.`);
+        } else {
+          throw new Error(`Erro na API (${response.status}): ${errorData.error || response.statusText}`);
+        }
       }
       
       const data = await response.json();
@@ -146,7 +163,10 @@ class VideoService {
       });
       
       if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Status API Error:", response.status, errorData);
+        
+        throw new Error(`Erro ao verificar status (${response.status}): ${errorData.error || response.statusText}`);
       }
       
       const data = await response.json();
