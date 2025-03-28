@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion } from 'framer-motion';
-import { Download, RefreshCw, Video, Play, Loader2 } from 'lucide-react';
+import { Download, RefreshCw, Video, Loader2 } from 'lucide-react';
 
 interface VideoPreviewProps {
   videoUrl: string | null;
@@ -51,10 +51,10 @@ const VideoPreview = ({
       transition={{ duration: 0.5 }}
       className="h-full"
     >
-      <Card className="h-full overflow-hidden border-0 bg-gradient-to-br from-white/90 to-white/70 dark:from-gray-900/90 dark:to-gray-800/70 backdrop-blur-lg shadow-xl rounded-2xl">
+      <Card className="h-full overflow-hidden border-0 bg-black text-white backdrop-blur-lg shadow-xl rounded-xl border border-gray-800">
         <div className="flex flex-col h-full p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Prévia do Vídeo
             </h3>
             <Button
@@ -62,14 +62,14 @@ const VideoPreview = ({
               variant="outline"
               onClick={onRefresh}
               disabled={isLoading}
-              className="group hover:border-blue-400 transition-colors"
+              className="group border-gray-700 bg-gray-900 text-gray-300 hover:border-blue-500 hover:bg-gray-800 transition-colors"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 group-hover:text-blue-500 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 mr-2 group-hover:text-blue-400 ${isLoading ? 'animate-spin' : ''}`} />
               Atualizar
             </Button>
           </div>
 
-          <div className="relative flex-grow aspect-video w-full overflow-hidden rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 shadow-inner flex items-center justify-center mb-4">
+          <div className="relative flex-grow aspect-video w-full overflow-hidden rounded-lg bg-gradient-to-br from-gray-900 to-black border border-gray-800 shadow-inner flex items-center justify-center mb-4">
             {videoUrl ? (
               <video 
                 src={videoUrl} 
@@ -88,23 +88,23 @@ const VideoPreview = ({
                   <div className="relative pt-1">
                     <div className="flex mb-2 items-center justify-between">
                       <div>
-                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200">
+                        <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-400 bg-blue-900/50">
                           Progresso
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-semibold inline-block text-blue-600">
+                        <span className="text-xs font-semibold inline-block text-blue-400">
                           {progress.toFixed(0)}%
                         </span>
                       </div>
                     </div>
-                    <Progress value={progress} className="h-2 w-full bg-blue-200" />
+                    <Progress value={progress} className="h-2 w-full bg-gray-800" />
                   </div>
-                  <div className="bg-blue-50 text-blue-800 px-4 py-3 rounded-lg text-sm">
+                  <div className="bg-gray-900/70 text-blue-300 px-4 py-3 rounded-lg text-sm border border-gray-800">
                     <p className="font-medium">
                       Seu vídeo está sendo gerado
                     </p>
-                    <p className="text-blue-600/80 text-xs mt-1">
+                    <p className="text-blue-400/80 text-xs mt-1">
                       Tempo estimado: {formatTime(estimatedTime)}
                     </p>
                   </div>
@@ -112,10 +112,10 @@ const VideoPreview = ({
               </div>
             ) : (
               <div className="text-center p-8">
-                <div className="p-4 rounded-full bg-blue-100 dark:bg-blue-900/50 inline-flex mb-4">
-                  <Video className="h-12 w-12 text-blue-500" />
+                <div className="p-4 rounded-full bg-gray-800/50 inline-flex mb-4">
+                  <Video className="h-12 w-12 text-blue-400" />
                 </div>
-                <p className="text-gray-500 dark:text-gray-400 max-w-md">
+                <p className="text-gray-400 max-w-md">
                   Nenhum vídeo gerado ainda. Preencha o formulário e clique em Gerar para criar seu vídeo com IA.
                 </p>
               </div>
@@ -131,7 +131,7 @@ const VideoPreview = ({
                 rel="noreferrer"
                 className="inline-block"
               >
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md transition-all">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg transition-all">
                   <Download className="h-4 w-4 mr-2" />
                   Baixar Vídeo
                 </Button>

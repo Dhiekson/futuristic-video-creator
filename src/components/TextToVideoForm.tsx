@@ -73,7 +73,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
       transition={{ duration: 0.5 }}
       className="h-full"
     >
-      <Card className="glass-card h-full overflow-hidden p-6 border-2 border-primary/10 shadow-lg">
+      <Card className="h-full overflow-hidden p-6 bg-black text-white border border-gray-800 shadow-lg">
         <form onSubmit={handleSubmit} className="space-y-6 h-full flex flex-col">
           <PromptInput 
             prompt={prompt}
@@ -101,7 +101,7 @@ const TextToVideoForm = ({ onGenerateVideo }: TextToVideoFormProps) => {
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-blue-500 hover:shadow-md transition-shadow"
+            className="w-full h-12 text-base font-medium bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-lg transition-all"
             disabled={isGenerating || !prompt.trim()}
           >
             {isGenerating ? (
