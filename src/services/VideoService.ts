@@ -15,195 +15,170 @@ interface ImageToVideoParams {
   seed: number;
 }
 
-interface WanAIResponse {
-  status?: string;
-  eta?: number;
-  progress?: number;
-  output?: {
-    video?: string;
-  };
-  detail?: string;
-  task_id?: string;
+interface VideoStatus {
+  videoUrl: string | null;
+  progress: number;
+  estimatedTime: number;
 }
 
 class VideoService {
   private static API_URL = "https://api-inference.huggingface.co/models/Wan-AI/Wan2.1";
   private static API_KEY = "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";
-  private static pollInterval = 2000; // 2 segundos
-  
-  // Armazena o ID da tarefa atual
   private static currentTaskId: string | null = null;
   
-  private static async fetchWithTimeout(
-    resource: RequestInfo, 
-    options: RequestInit & { timeout?: number } = {}
-  ) {
-    const { timeout = 30000 } = options;
-    
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    
-    try {
-      const response = await fetch(resource, {
-        ...options,
-        signal: controller.signal,
-      });
-      clearTimeout(id);
-      return response;
-    } catch (error) {
-      clearTimeout(id);
-      throw error;
-    }
-  }
-  
-  static async generateTextToVideo(params: TextToVideoParams): Promise<{ videoUrl: string | null; estimatedTime: number }> {
+  static async generateTextToVideo(params: TextToVideoParams): Promise<VideoStatus> {
     try {
       console.log("Iniciando geração de vídeo a partir de texto:", params);
       
-      const response = await this.fetchWithTimeout(`${this.API_URL}/t2v_generation_async`, {
+      const response = await fetch(`${this.API_URL}/t2v_generation_async`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${this.API_KEY}`
         },
         body: JSON.stringify({
-          prompt: params.prompt,
-          size: params.size,
-          watermark_wan: params.watermark,
-          seed: params.seed === -1 ? -1 : params.seed
-        }),
-        timeout: 60000  // 60 segundos
+          inputs: params.prompt,
+          parameters: {
+            size: params.size,
+            watermark_wan: params.watermark,
+            seed: params.seed
+          }
+        })
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Erro na API:", errorData);
-        throw new Error(errorData.detail || "Erro na chamada da API");
+        const errorText = await response.text();
+        console.error("API Error:", errorText);
+        throw new Error(`API error: ${response.status} - ${errorText}`);
       }
       
-      const data: WanAIResponse = await response.json();
-      console.log("Resposta da API:", data);
+      const data = await response.json();
+      console.log("API Response:", data);
       
-      // Armazenar o ID da tarefa para consultar o status posteriormente
-      this.currentTaskId = data.task_id || null;
-      
-      if (!this.currentTaskId) {
-        throw new Error("ID da tarefa não encontrado na resposta da API");
+      if (data.task_id) {
+        this.currentTaskId = data.task_id;
+        return {
+          videoUrl: null,
+          progress: 0,
+          estimatedTime: data.eta || 60
+        };
+      } else if (data.error) {
+        throw new Error(`API error: ${data.error}`);
+      } else {
+        throw new Error("Resposta inesperada da API");
       }
-      
-      return {
-        videoUrl: null,
-        estimatedTime: data.eta || 60, // Usando o eta da resposta
-      };
     } catch (error) {
-      console.error("Erro na geração de vídeo a partir de texto:", error);
+      console.error("Erro na geração de vídeo:", error);
       throw error;
     }
   }
   
-  static async generateImageToVideo(params: ImageToVideoParams): Promise<{ videoUrl: string | null; estimatedTime: number }> {
+  static async generateImageToVideo(params: ImageToVideoParams): Promise<VideoStatus> {
     try {
-      console.log("Imagens para upload:", params.images);
       console.log("Iniciando geração de vídeo a partir de imagens:", params);
       
       const formData = new FormData();
-      formData.append("prompt", params.prompt);
-      formData.append("watermark_wan", params.watermark.toString());
-      formData.append("seed", params.seed === -1 ? "-1" : params.seed.toString());
+      formData.append("inputs", params.prompt);
       
-      // Adicionar todas as imagens ao FormData
+      // Adicionar parâmetros
+      const parameters = {
+        watermark_wan: params.watermark,
+        seed: params.seed
+      };
+      formData.append("parameters", JSON.stringify(parameters));
+      
+      // Adicionar imagens
       params.images.forEach((image, index) => {
-        formData.append("image", image);
+        formData.append(`image_${index}`, image);
       });
       
-      const response = await this.fetchWithTimeout(`${this.API_URL}/i2v_generation_async`, {
+      const response = await fetch(`${this.API_URL}/i2v_generation_async`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${this.API_KEY}`
         },
-        body: formData,
-        timeout: 60000  // 60 segundos
+        body: formData
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Erro na API:", errorData);
-        throw new Error(errorData.detail || "Erro na chamada da API");
+        const errorText = await response.text();
+        console.error("API Error:", errorText);
+        throw new Error(`API error: ${response.status} - ${errorText}`);
       }
       
-      const data: WanAIResponse = await response.json();
-      console.log("Resposta da API:", data);
+      const data = await response.json();
+      console.log("API Response:", data);
       
-      // Armazenar o ID da tarefa para consultar o status posteriormente
-      this.currentTaskId = data.task_id || null;
-      
-      if (!this.currentTaskId) {
-        throw new Error("ID da tarefa não encontrado na resposta da API");
+      if (data.task_id) {
+        this.currentTaskId = data.task_id;
+        return {
+          videoUrl: null,
+          progress: 0,
+          estimatedTime: data.eta || 90
+        };
+      } else if (data.error) {
+        throw new Error(`API error: ${data.error}`);
+      } else {
+        throw new Error("Resposta inesperada da API");
       }
-      
-      return {
-        videoUrl: null,
-        estimatedTime: data.eta || 90, // Usando o eta da resposta
-      };
     } catch (error) {
       console.error("Erro na geração de vídeo a partir de imagens:", error);
       throw error;
     }
   }
   
-  static async checkVideoStatus(): Promise<{ videoUrl: string | null; progress: number; estimatedTime: number }> {
+  static async checkVideoStatus(): Promise<VideoStatus> {
     try {
       if (!this.currentTaskId) {
-        console.error("Nenhuma tarefa em andamento para verificar status");
+        console.warn("Nenhuma tarefa em andamento para verificar status");
         return {
           videoUrl: null,
           progress: 0,
-          estimatedTime: 0,
+          estimatedTime: 0
         };
       }
       
-      const response = await this.fetchWithTimeout(`${this.API_URL}/status_refresh`, {
-        method: "POST",
+      const response = await fetch(`${this.API_URL}/status/${this.currentTaskId}`, {
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           "Authorization": `Bearer ${this.API_KEY}`
-        },
-        body: JSON.stringify({
-          task_id: this.currentTaskId
-        }),
-        timeout: 30000
+        }
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Erro ao verificar status:", errorData);
-        throw new Error(errorData.detail || "Erro ao verificar o status do vídeo");
+        const errorText = await response.text();
+        console.error("Status API Error:", errorText);
+        throw new Error(`API error: ${response.status} - ${errorText}`);
       }
       
-      const data: WanAIResponse = await response.json();
-      console.log("Status do vídeo:", data);
+      const data = await response.json();
+      console.log("Status Response:", data);
       
-      // Se o status for "complete", retornar a URL do vídeo
-      if (data.status === "complete" && data.output?.video) {
-        console.log("Vídeo gerado com sucesso:", data.output.video);
-        // Limpar o ID da tarefa atual
-        this.currentTaskId = null;
-        
+      if (data.status === "completed" && data.output) {
+        // Tarefa completa
         return {
-          videoUrl: data.output.video,
+          videoUrl: data.output,
           progress: 100,
-          estimatedTime: 0,
+          estimatedTime: 0
+        };
+      } else if (data.status === "processing") {
+        // Ainda processando
+        return {
+          videoUrl: null,
+          progress: data.progress || 0,
+          estimatedTime: data.eta || 0
+        };
+      } else if (data.status === "error") {
+        throw new Error(`Erro na geração: ${data.error || "Erro desconhecido"}`);
+      } else {
+        return {
+          videoUrl: null,
+          progress: data.progress || 0,
+          estimatedTime: data.eta || 0
         };
       }
-      
-      // Se ainda estiver processando, retornar o progresso
-      return {
-        videoUrl: null,
-        progress: data.progress || 0,
-        estimatedTime: data.eta || 0,
-      };
     } catch (error) {
-      console.error("Erro ao verificar o status do vídeo:", error);
+      console.error("Erro ao verificar status:", error);
       throw error;
     }
   }
