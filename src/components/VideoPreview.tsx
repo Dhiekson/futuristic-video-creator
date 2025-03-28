@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion } from 'framer-motion';
-import { Download, RefreshCw, Video, Loader2 } from 'lucide-react';
+import { Download, RefreshCw, Video, Loader2, AlertCircle } from 'lucide-react';
 
 interface VideoPreviewProps {
   videoUrl: string | null;
@@ -12,6 +12,7 @@ interface VideoPreviewProps {
   progress: number;
   estimatedTime: number;
   onRefresh: () => void;
+  error?: string | null;
 }
 
 const VideoPreview = ({
@@ -20,6 +21,7 @@ const VideoPreview = ({
   progress,
   estimatedTime,
   onRefresh,
+  error = null,
 }: VideoPreviewProps) => {
   const [showProgress, setShowProgress] = useState(false);
   
@@ -79,6 +81,22 @@ const VideoPreview = ({
               >
                 Seu navegador não suporta a tag de vídeo.
               </video>
+            ) : error ? (
+              <div className="text-center space-y-6 p-8 w-full">
+                <div className="flex justify-center">
+                  <AlertCircle size={48} className="text-red-500" />
+                </div>
+                <div className="space-y-3 max-w-md mx-auto">
+                  <div className="bg-red-900/30 text-red-300 px-4 py-3 rounded-lg text-sm border border-red-800">
+                    <p className="font-medium">
+                      Erro ao gerar vídeo
+                    </p>
+                    <p className="text-red-400/80 text-xs mt-1">
+                      {error || "Não foi possível processar o vídeo. Tente novamente com outro prompt."}
+                    </p>
+                  </div>
+                </div>
+              </div>
             ) : showProgress && isLoading ? (
               <div className="text-center space-y-6 p-8 w-full">
                 <div className="flex justify-center">
@@ -106,6 +124,9 @@ const VideoPreview = ({
                     </p>
                     <p className="text-blue-400/80 text-xs mt-1">
                       Tempo estimado: {formatTime(estimatedTime)}
+                    </p>
+                    <p className="text-gray-400 text-xs mt-2">
+                      A geração de vídeo com IA pode levar alguns minutos. Por favor, aguarde enquanto nosso sistema processa sua solicitação.
                     </p>
                   </div>
                 </div>

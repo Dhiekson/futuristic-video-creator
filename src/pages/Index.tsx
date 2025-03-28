@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +19,7 @@ const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [estimatedTime, setEstimatedTime] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Parar o polling quando o componente é desmontado ou quando o vídeo está pronto
@@ -41,6 +41,7 @@ const Index = () => {
     // Definir estado inicial
     setVideoUrl(null);
     setProgress(0);
+    setError(null);
     
     // Iniciar um novo intervalo de polling
     const interval = setInterval(async () => {
@@ -64,13 +65,14 @@ const Index = () => {
         console.error("Erro ao verificar o status do vídeo:", error);
         clearInterval(interval);
         setIsGenerating(false);
+        setError(error instanceof Error ? error.message : "Erro desconhecido ao verificar o status do vídeo");
         toast({
           title: "Erro ao verificar o status do vídeo",
-          description: "Falha ao verificar o progresso da geração do vídeo.",
+          description: error instanceof Error ? error.message : "Falha ao verificar o progresso da geração do vídeo.",
           variant: "destructive",
         });
       }
-    }, 1500);
+    }, 3000); // Aumentando o intervalo para reduzir a carga na API
     
     setPollInterval(interval);
   };
@@ -83,6 +85,7 @@ const Index = () => {
   }) => {
     try {
       setIsGenerating(true);
+      setError(null);
       
       // Iniciar geração de vídeo a partir de texto
       const result = await VideoService.generateTextToVideo({
@@ -100,9 +103,10 @@ const Index = () => {
     } catch (error) {
       console.error("Erro ao gerar vídeo a partir de texto:", error);
       setIsGenerating(false);
+      setError(error instanceof Error ? error.message : "Erro desconhecido ao gerar vídeo");
       toast({
         title: "Erro",
-        description: "Falha ao gerar vídeo. Por favor, tente novamente.",
+        description: error instanceof Error ? error.message : "Falha ao gerar vídeo. Por favor, tente novamente.",
         variant: "destructive",
       });
     }
@@ -116,6 +120,7 @@ const Index = () => {
   }) => {
     try {
       setIsGenerating(true);
+      setError(null);
       
       // Iniciar geração de vídeo a partir de imagem
       const result = await VideoService.generateImageToVideo({
@@ -133,9 +138,10 @@ const Index = () => {
     } catch (error) {
       console.error("Erro ao gerar vídeo a partir de imagem:", error);
       setIsGenerating(false);
+      setError(error instanceof Error ? error.message : "Erro desconhecido ao gerar vídeo");
       toast({
         title: "Erro",
-        description: "Falha ao gerar vídeo. Por favor, tente novamente.",
+        description: error instanceof Error ? error.message : "Falha ao gerar vídeo. Por favor, tente novamente.",
         variant: "destructive",
       });
     }
@@ -146,6 +152,7 @@ const Index = () => {
     
     try {
       setIsGenerating(true);
+      setError(null);
       
       // Usar a API real para verificar o status
       const status = await VideoService.checkVideoStatus();
@@ -170,9 +177,10 @@ const Index = () => {
     } catch (error) {
       console.error("Erro ao atualizar o status do vídeo:", error);
       setIsGenerating(false);
+      setError(error instanceof Error ? error.message : "Erro desconhecido ao atualizar status");
       toast({
         title: "Erro ao atualizar o status",
-        description: "Falha ao obter o status mais recente.",
+        description: error instanceof Error ? error.message : "Falha ao obter o status mais recente.",
         variant: "destructive",
       });
     }
@@ -262,6 +270,7 @@ const Index = () => {
                 progress={progress}
                 estimatedTime={estimatedTime}
                 onRefresh={handleRefreshStatus}
+                error={error}
               />
             </div>
           </div>
