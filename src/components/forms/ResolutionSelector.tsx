@@ -5,8 +5,11 @@ import { Label } from "@/components/ui/label";
 
 export const resolutions = [
   { value: '1280*720', label: '1280×720 (16:9)' },
+  { value: '1920*1080', label: '1920×1080 (16:9)' },
   { value: '960*960', label: '960×960 (1:1)' },
+  { value: '1024*1024', label: '1024×1024 (1:1)' },
   { value: '720*1280', label: '720×1280 (9:16)' },
+  { value: '1080*1920', label: '1080×1920 (9:16)' },
   { value: '1088*832', label: '1088×832 (4:3)' },
   { value: '832*1088', label: '832×1088 (3:4)' },
 ];

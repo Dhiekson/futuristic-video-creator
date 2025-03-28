@@ -19,7 +19,7 @@ const PromptInput = ({
   disabled,
   label = "Prompt",
   placeholder = "Descreva o vídeo que deseja criar...",
-  maxLength = 500,
+  maxLength = 250,
   optional = false
 }: PromptInputProps) => {
   const percentUsed = (prompt.length / maxLength) * 100;

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
@@ -10,6 +11,7 @@ import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Footer from '@/components/Footer';
 import VideoService from '@/services/VideoService';
+import InteractiveBackground from '@/components/InteractiveBackground';
 
 const Index = () => {
   const { toast } = useToast();
@@ -68,7 +70,7 @@ const Index = () => {
           variant: "destructive",
         });
       }
-    }, 2000);
+    }, 1500);
     
     setPollInterval(interval);
   };
@@ -191,6 +193,8 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <InteractiveBackground />
+      
       {/* Barra de progresso para posição de rolagem (decorativa) */}
       <motion.div
         className="progress-bar"
@@ -224,7 +228,7 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 viewport={{ once: true }}
-                className="mt-4 text-3xl font-bold tracking-tight md:text-4xl"
+                className="mt-4 text-3xl font-bold tracking-tight md:text-4xl bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent"
               >
                 Transforme Suas Ideias em Vídeos
               </motion.h2>
@@ -234,9 +238,9 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="mt-4 text-muted-foreground md:text-lg"
+                className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto"
               >
-                Crie vídeos de alta qualidade a partir de texto ou imagens facilmente com nossa IA avançada
+                Crie vídeos de alta qualidade a partir de texto ou imagens com nossa IA avançada
               </motion.p>
             </div>
             
@@ -287,7 +291,7 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 viewport={{ once: true }}
-                className="mt-4 text-3xl font-bold tracking-tight md:text-4xl"
+                className="mt-4 text-3xl font-bold tracking-tight md:text-4xl bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent"
               >
                 Veja o Que é Possível
               </motion.h2>
@@ -297,7 +301,7 @@ const Index = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="mt-4 text-muted-foreground md:text-lg"
+                className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto"
               >
                 Explore exemplos criados com nossa tecnologia de geração de vídeo por IA
               </motion.p>
@@ -349,7 +353,7 @@ const Index = () => {
                 <span className="inline-block rounded-full bg-secondary px-3 py-1 text-xs font-medium uppercase tracking-wider text-secondary-foreground">
                   Sobre Nossa Tecnologia
                 </span>
-                <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl">
+                <h2 className="mt-4 text-3xl font-bold tracking-tight md:text-4xl bg-gradient-to-r from-blue-600 via-purple-500 to-indigo-600 bg-clip-text text-transparent">
                   Alimentado por IA Avançada
                 </h2>
                 <p className="mt-4 text-muted-foreground md:text-lg">

@@ -1,11 +1,10 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { motion } from 'framer-motion';
 import { Download, RefreshCw, Video, Play, Loader2 } from 'lucide-react';
-import LoadingSpinner from './LoadingSpinner';
 
 interface VideoPreviewProps {
   videoUrl: string | null;
@@ -22,6 +21,22 @@ const VideoPreview = ({
   estimatedTime,
   onRefresh,
 }: VideoPreviewProps) => {
+  const [showProgress, setShowProgress] = useState(false);
+  
+  useEffect(() => {
+    if (isLoading) {
+      setShowProgress(true);
+    }
+  }, [isLoading]);
+  
+  useEffect(() => {
+    if (videoUrl) {
+      // Only hide progress when video is loaded
+      const timer = setTimeout(() => setShowProgress(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [videoUrl]);
+  
   const formatTime = (seconds: number) => {
     if (seconds < 60) return `${Math.round(seconds)} segundos`;
     const minutes = Math.floor(seconds / 60);
@@ -46,7 +61,7 @@ const VideoPreview = ({
               size="sm"
               variant="outline"
               onClick={onRefresh}
-              disabled={isLoading && progress === 0}
+              disabled={isLoading}
               className="group hover:border-blue-400 transition-colors"
             >
               <RefreshCw className={`h-4 w-4 mr-2 group-hover:text-blue-500 ${isLoading ? 'animate-spin' : ''}`} />
@@ -64,7 +79,7 @@ const VideoPreview = ({
               >
                 Seu navegador não suporta a tag de vídeo.
               </video>
-            ) : isLoading ? (
+            ) : showProgress && isLoading ? (
               <div className="text-center space-y-6 p-8 w-full">
                 <div className="flex justify-center">
                   <Loader2 size={48} className="text-blue-500 animate-spin" />
